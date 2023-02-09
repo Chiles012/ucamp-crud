@@ -7,7 +7,9 @@ const mgpx_input = document.querySelector("#mgpx");
 
 const add_button = document.querySelector("#add");
 const add_submit = document.querySelector("#add_submit");
-const delete_button = document.getElementById("delete-all")
+const delete_button = document.getElementById("delete-all");
+
+const form = document.querySelector('form');
 
 const content_div = document.getElementById("content");
 
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
     }
 
     add_button.addEventListener('click', (e) => {
+        
         e.preventDefault();
         // Agregar funcion de agregar elementos ...
         const celulares = JSON.parse( localStorage.getItem("celulares") ) || [];
@@ -43,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
 
         const celular = { // JSON
         //  key     : value
-            "marca": marca,
+            marca,
             "alm": alm,
             "modelo": modelo,
             "ram": ram,
@@ -84,12 +87,62 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
             const text_button_delete = document.createTextNode("Eliminar");
             button_delete.appendChild(text_button_delete);
 
+            const button_update = document.createElement('button');
+            const text_button_update = document.createTextNode('Actualizar');
+            button_update.appendChild(text_button_update);
+
             button_delete.onclick = () => {
                 deleteLocalStorage(i, celulares)
             }
 
+            button_update.onclick = () => {
+                // cargar elementos en el formulario ...
+                marca_input.value = celulares[i].marca;
+                modelo_input.value = celulares[i].modelo;
+                alm_input.value = celulares[i].alm;
+                ram_input.value = celulares[i].ram;
+                mgpx_input.value = celulares[i].mgpx;
+                procesador_input.value = celulares[i].procesador;
+
+                // desabilitamos boton agregar
+                add_button.disabled = true;
+
+                // agregamos el boton guardar en el formulario ...
+                const button_save = document.createElement('button');
+                const text_button_save = document.createTextNode('Guardar');
+
+                button_save.appendChild(text_button_save);
+
+                button_save.id = i;
+
+                button_save.onclick = (e) => {
+                    e.preventDefault()
+                    // actualizar informacion ..
+                    const celular = {
+                        "marca":marca_input.value,
+                        "modelo":modelo_input.value, 
+                        "alm":alm_input.value,
+                        "ram":ram_input.value,
+                        "mgpx":mgpx_input.value,
+                        "procesador":procesador_input.value
+                    }
+
+                    celulares.splice(i, 1, celular); // actualizacion ...
+
+                    localStorage.setItem('celulares', JSON.stringify(celulares));
+
+                    content_div.innerHTML = "";
+                    render(celulares);
+
+                    button_save.hidden = true;
+                }
+
+                form.appendChild(button_save);
+            }
+
             // Agregar textos y buton ...
             div_celular.appendChild(text_marca_modelo);
+            div_celular.appendChild(button_update);
             div_celular.appendChild(button_delete);
 
             content_div.appendChild(div_celular);
