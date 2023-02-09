@@ -12,6 +12,7 @@ const delete_button = document.getElementById("delete-all");
 const form = document.querySelector('form');
 
 const content_div = document.getElementById("content");
+const content_table = document.getElementById("content-table")
 
 document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nuestro contenido html ...
 
@@ -76,8 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
         content_div.append(parrafo);
     })
 
-    function render(celulares) {
-        for(let i = 0; i < celulares.length; i++) {
+    /*add_submit.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Todo: Agregar codigo
+    })*/
+
+})
+
+function render(celulares) {
+    for(let i = 0; i < celulares.length; i++) {
+        // Div del conenido ......
+
             // Crear elemento div ...
             const div_celular = document.createElement("div");
             const text_marca_modelo = document.createTextNode(`${celulares[i].marca}-${celulares[i].modelo}`);
@@ -87,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
             const text_button_delete = document.createTextNode("Eliminar");
             button_delete.appendChild(text_button_delete);
 
+            // nueva seccion
             const button_update = document.createElement('button');
             const text_button_update = document.createTextNode('Actualizar');
             button_update.appendChild(text_button_update);
@@ -95,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
                 deleteLocalStorage(i, celulares)
             }
 
+            // 
             button_update.onclick = () => {
                 // cargar elementos en el formulario ...
                 marca_input.value = celulares[i].marca;
@@ -135,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
                     render(celulares);
 
                     button_save.hidden = true;
+                    add_button.disabled = false;
                 }
 
                 form.appendChild(button_save);
@@ -146,22 +159,59 @@ document.addEventListener('DOMContentLoaded', () => {// Espera a que cargue nues
             div_celular.appendChild(button_delete);
 
             content_div.appendChild(div_celular);
-        }
+
+        // Tabla contenido ...
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input value="${celulares[i].marca}" id="marca-${i}" /></td>
+            <td><input value="${celulares[i].modelo}" id="modelo-${i}" /></td>
+            <td><input value="${celulares[i].alm}" id="alm-${i}"/></td>
+            <td><input value="${celulares[i].ram}" id="ram-${i}" /></td>
+            <td><input value="${celulares[i].procesador}" id="procesador-${i}"/></td>
+            <td><input value="${celulares[i].mgpx}" id="mgpx-${i}" /></td>
+            <td>
+                <button onclick="saveTable(${i})">Guardar</button>
+                <button>Eliminar</button>
+            </td>
+        `;
+        document.querySelector("tbody").appendChild(row);
     }
+}
 
-    function deleteLocalStorage(i, celulares) {
-        celulares.splice(i, 1);
+function deleteLocalStorage(i, celulares) {
+    celulares.splice(i, 1);
 
-        localStorage.setItem('celulares', JSON.stringify(celulares));
+    localStorage.setItem('celulares', JSON.stringify(celulares));
 
-        content_div.innerHTML = '';
+    content_div.innerHTML = '';
 
-        render(celulares)
-    }
+    render(celulares)
+}
 
-    /*add_submit.addEventListener("click", (e) => {
-        e.preventDefault();
-        // Todo: Agregar codigo
-    })*/
+function saveTable(i) {
+    const input_table_marca = document.querySelector(`#marca-${i}`);
+    const input_table_modelo = document.querySelector(`#modelo-${i}`);
+    const input_table_alm = document.querySelector(`#alm-${i}`);
+    const input_table_ram = document.querySelector(`#ram-${i}`);
+    const input_table_procesador = document.querySelector(`#procesador-${i}`);
+    const input_table_mgpx = document.querySelector(`#mgpx-${i}`);
 
-})
+    const celulares = JSON.parse(localStorage.getItem("celulares")) || [];
+
+    celulares.splice(i, 1, {
+        "marca": input_table_marca.value,
+        "modelo": input_table_modelo.value,
+        "alm": input_table_alm.value,
+        "ram": input_table_ram.value,
+        "procesador": input_table_procesador.value,
+        "mgpx": input_table_mgpx.value
+    })
+
+    localStorage.setItem("celulares", JSON.stringify(celulares));
+
+
+    content_div.innerHTML = '';
+    document.querySelector("tbody").innerHTML = ''
+    render(celulares);
+
+}
